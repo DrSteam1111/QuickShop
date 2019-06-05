@@ -48,7 +48,7 @@ namespace QuickShop
         private static void BuyItem(string id)
         {
             Inventory.Get().Add(id, 1f, Color.black, true, true);
-            var price = Singleton<GameInventory>.Instance.GetItemProperty(id).Price;
+            var price = (int)Mathf.Floor(Singleton<GameInventory>.Instance.GetItemProperty(id).Price * Singleton<UpgradeSystem>.Instance.GetUpgradeValue("shop_discount"));
             GlobalData.AddPlayerMoney(-price);
             UIManager.Get().ShowPopup("QuickShop:", "Part cost: " + Helper.MoneyToString((float) price), PopupType.Buy);
         }
