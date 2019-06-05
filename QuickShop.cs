@@ -28,10 +28,27 @@ namespace QuickShop
         {
             if (!Input.GetKeyUp(KeyCode.B)) return;
 
-            var id = GameScript.Get().GetPartMouseOver().GetIDWithTuned();
+            var id = IdOfSelectedItem();
             if (id == null) return;
-
             BuyItem(id);
+        }
+
+        private static string IdOfSelectedItem()
+        {
+            var id = GameScript.Get().GetPartMouseOver().GetID();
+            if (id == null) return null;
+            var possibleTunedId = "t_" + id;
+            if (IdExists(possibleTunedId)) 
+            {
+                id = possibleTunedId;
+            }
+            return id;
+        }
+
+        private static bool IdExists(string possibleTunedId)
+        {
+            //TODO: is it a good enough indication that part doesn't exist?
+            return Singleton<GameInventory>.Instance.GetItemProperty(possibleTunedId).Price != 0;
         }
 
         private static void BuyItem(string id)
