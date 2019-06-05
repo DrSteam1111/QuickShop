@@ -5,14 +5,14 @@ using UnityModManagerNet;
 
 namespace QuickShop
 {
-    static class Main
+    public static class Main
     {
-        public static bool enabled;
-        public static UnityModManager.ModEntry mod;
+        public static bool Enabled;
+        public static UnityModManager.ModEntry Mod;
 
-        static bool Load(UnityModManager.ModEntry modEntry)
+        public static bool Load(UnityModManager.ModEntry modEntry)
         {
-            mod = modEntry;
+            Mod = modEntry;
             modEntry.OnToggle = OnToggle;
 
             var harmony = HarmonyInstance.Create(modEntry.Info.Id);
@@ -21,9 +21,9 @@ namespace QuickShop
             return true;
         }
 
-        static bool OnToggle(UnityModManager.ModEntry modEntry, bool value)
+        public static bool OnToggle(UnityModManager.ModEntry modEntry, bool value)
         {
-            enabled = value;
+            Enabled = value;
             modEntry.Logger.Log("Starting QuickShop");
 
             return true;
@@ -32,25 +32,23 @@ namespace QuickShop
 
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("Update")]
-    public class RotationInput_Update_Patcher
+    public class GameScript_Update_Patcher
     {
         [HarmonyPostfix]
-        static void Postfix()
+        public static void Postfix()
         {
-            if (Input.GetKeyUp(KeyCode.B))
-            {
-                string id;
-                GameScript.Get().GetSelectedPartToMount();
-                id = GameScript.Get().GetPartMouseOver().GetIDWithTuned();
-                if (id != null)
-                {
-                    Inventory.Get().Add(id, 1f, Color.black, true, true);
-                    new NewInventoryItem(id, true).Condition = 1f;
-                    int price = Singleton<GameInventory>.Instance.GetItemProperty(id).Price;
-                    GlobalData.AddPlayerMoney(-price);
-                    UIManager.Get().ShowPopup("QiuckShop:", "Part cost: " + Helper.MoneyToString((float)price), PopupType.Buy);
-                }
-            }
+            if (!Input.GetKeyUp(KeyCode.B)) return;
+
+            string id;
+            GameScript.Get().GetSelectedPartToMount();
+            id = GameScript.Get().GetPartMouseOver().GetIDWithTuned();
+            if (id == null) return;
+
+            Inventory.Get().Add(id, 1f, Color.black, true, true);
+            new NewInventoryItem(id, true).Condition = 1f;
+            var price = Singleton<GameInventory>.Instance.GetItemProperty(id).Price;
+            GlobalData.AddPlayerMoney(-price);
+            UIManager.Get().ShowPopup("QuickShop:", "Part cost: " + Helper.MoneyToString((float)price), PopupType.Buy);
         }
     }
 }
