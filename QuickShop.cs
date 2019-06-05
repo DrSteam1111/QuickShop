@@ -7,24 +7,13 @@ namespace QuickShop
 {
     public static class Main
     {
-        public static bool Enabled;
-        public static UnityModManager.ModEntry Mod;
+        public static UnityModManager.ModEntry ModEntry;
 
         public static bool Load(UnityModManager.ModEntry modEntry)
         {
-            Mod = modEntry;
-            modEntry.OnToggle = OnToggle;
+            ModEntry = modEntry;
 
-            var harmony = HarmonyInstance.Create(modEntry.Info.Id);
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
-
-            return true;
-        }
-
-        public static bool OnToggle(UnityModManager.ModEntry modEntry, bool value)
-        {
-            Enabled = value;
-            modEntry.Logger.Log("Starting QuickShop");
+            HarmonyInstance.Create(modEntry.Info.Id).PatchAll(Assembly.GetExecutingAssembly());
 
             return true;
         }
@@ -50,6 +39,7 @@ namespace QuickShop
             Inventory.Get().Add(id, 1f, Color.black, true, true);
             var price = (int)Mathf.Floor(Singleton<GameInventory>.Instance.GetItemProperty(id).Price * Singleton<UpgradeSystem>.Instance.GetUpgradeValue("shop_discount"));
             GlobalData.AddPlayerMoney(-price);
+            Main.ModEntry.Logger.Log($"QuickShop: bought id: {id} for {price}.");
             UIManager.Get().ShowPopup("QuickShop:", "Part cost: " + Helper.MoneyToString((float) price), PopupType.Buy);
         }
     }
