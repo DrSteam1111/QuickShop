@@ -39,16 +39,18 @@ namespace QuickShop
         {
             if (!Input.GetKeyUp(KeyCode.B)) return;
 
-            string id;
-            GameScript.Get().GetSelectedPartToMount();
-            id = GameScript.Get().GetPartMouseOver().GetIDWithTuned();
+            var id = GameScript.Get().GetPartMouseOver().GetIDWithTuned();
             if (id == null) return;
 
+            BuyItem(id);
+        }
+
+        private static void BuyItem(string id)
+        {
             Inventory.Get().Add(id, 1f, Color.black, true, true);
-            new NewInventoryItem(id, true).Condition = 1f;
             var price = Singleton<GameInventory>.Instance.GetItemProperty(id).Price;
             GlobalData.AddPlayerMoney(-price);
-            UIManager.Get().ShowPopup("QuickShop:", "Part cost: " + Helper.MoneyToString((float)price), PopupType.Buy);
+            UIManager.Get().ShowPopup("QuickShop:", "Part cost: " + Helper.MoneyToString((float) price), PopupType.Buy);
         }
     }
 }
