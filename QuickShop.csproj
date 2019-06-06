@@ -32,47 +32,48 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony12">
-      <HintPath>D:\Programs\Steam\steamapps\common\Car Mechanic Simulator 2018\cms2018_Data\Managed\UnityModManager\0Harmony12.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>D:\SteamLibrary\steamapps\common\Car Mechanic Simulator 2018\cms2018_Data\Managed\UnityModManager\0Harmony12.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>D:\Programs\Steam\steamapps\common\Car Mechanic Simulator 2018\cms2018_Data\Managed\Assembly-CSharp.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>D:\SteamLibrary\steamapps\common\Car Mechanic Simulator 2018\cms2018_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>D:\Programs\Steam\steamapps\common\Car Mechanic Simulator 2018\cms2018_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>D:\SteamLibrary\steamapps\common\Car Mechanic Simulator 2018\cms2018_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="UnityEngine">
-      <HintPath>D:\Programs\Steam\steamapps\common\Car Mechanic Simulator 2018\cms2018_Data\Managed\UnityEngine.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>D:\SteamLibrary\steamapps\common\Car Mechanic Simulator 2018\cms2018_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>D:\Programs\Steam\steamapps\common\Car Mechanic Simulator 2018\cms2018_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>D:\SteamLibrary\steamapps\common\Car Mechanic Simulator 2018\cms2018_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>D:\Programs\Steam\steamapps\common\Car Mechanic Simulator 2018\cms2018_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>D:\SteamLibrary\steamapps\common\Car Mechanic Simulator 2018\cms2018_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>D:\Programs\Steam\steamapps\common\Car Mechanic Simulator 2018\cms2018_Data\Managed\UnityEngine.UI.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>D:\SteamLibrary\steamapps\common\Car Mechanic Simulator 2018\cms2018_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityModManager">
-      <HintPath>D:\Programs\Steam\steamapps\common\Car Mechanic Simulator 2018\cms2018_Data\Managed\UnityModManager\UnityModManager.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>D:\SteamLibrary\steamapps\common\Car Mechanic Simulator 2018\cms2018_Data\Managed\UnityModManager\UnityModManager.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="QuickShop.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>mkdir $(TargetDir)\QuickShop
+copy /y $(TargetPath) $(TargetDir)\QuickShop
+copy /y $(TargetDir)\Info.json $(TargetDir)\QuickShop
+del QuickShop.zip
+powershell.exe -nologo -noprofile -command "&amp; { Add-Type -A 'System.IO.Compression.FileSystem'; [IO.Compression.ZipFile]::CreateFromDirectory('$(TargetDir)\QuickShop', '$(TargetDir)\QuickShop.zip', [System.IO.Compression.CompressionLevel]::Optimal, $true) }"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

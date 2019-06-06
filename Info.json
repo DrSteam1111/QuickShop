@@ -1,5 +1,6 @@
 {
   "Id": "QuickShop",
-  "Version": "1.0.0",
+  "DisplayName": "QuickShop",
+  "Version": "1.0.1",
   "EntryMethod": "QuickShop.Main.Load"
 }

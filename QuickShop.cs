@@ -5,26 +5,15 @@ using UnityModManagerNet;
 
 namespace QuickShop
 {
-    static class Main
+    public static class Main
     {
-        public static bool enabled;
-        public static UnityModManager.ModEntry mod;
+        public static UnityModManager.ModEntry ModEntry;
 
-        static bool Load(UnityModManager.ModEntry modEntry)
+        public static bool Load(UnityModManager.ModEntry modEntry)
         {
-            mod = modEntry;
-            modEntry.OnToggle = OnToggle;
+            ModEntry = modEntry;
 
-            var harmony = HarmonyInstance.Create(modEntry.Info.Id);
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
-
-            return true;
-        }
-
-        static bool OnToggle(UnityModManager.ModEntry modEntry, bool value)
-        {
-            enabled = value;
-            modEntry.Logger.Log("Starting QuickShop");
+            HarmonyInstance.Create(modEntry.Info.Id).PatchAll(Assembly.GetExecutingAssembly());
 
             return true;
         }
@@ -32,25 +21,43 @@ namespace QuickShop
 
     [HarmonyPatch(typeof(GameScript))]
     [HarmonyPatch("Update")]
-    public class RotationInput_Update_Patcher
+    public class GameScript_Update_Patcher
     {
         [HarmonyPostfix]
-        static void Postfix()
+        public static void Postfix()
         {
-            if (Input.GetKeyUp(KeyCode.B))
+            if (!Input.GetKeyUp(KeyCode.B)) return;
+
+            var id = IdOfSelectedItem();
+            if (id == null) return;
+            BuyItem(id);
+        }
+
+        private static string IdOfSelectedItem()
+        {
+            var id = GameScript.Get().GetPartMouseOver().GetID();
+            if (id == null) return null;
+            var possibleTunedId = "t_" + id;
+            if (IdExists(possibleTunedId)) 
             {
-                string id;
-                GameScript.Get().GetSelectedPartToMount();
-                id = GameScript.Get().GetPartMouseOver().GetIDWithTuned();
-                if (id != null)
-                {
-                    Inventory.Get().Add(id, 1f, Color.black, true, true);
-                    new NewInventoryItem(id, true).Condition = 1f;
-                    int price = Singleton<GameInventory>.Instance.GetItemProperty(id).Price;
-                    GlobalData.AddPlayerMoney(-price);
-                    UIManager.Get().ShowPopup("QiuckShop:", "Part cost: " + Helper.MoneyToString((float)price), PopupType.Buy);
-                }
+                id = possibleTunedId;
             }
+            return id;
+        }
+
+        private static bool IdExists(string possibleTunedId)
+        {
+            //TODO: is it a good enough indication that part doesn't exist?
+            return Singleton<GameInventory>.Instance.GetItemProperty(possibleTunedId).Price != 0;
+        }
+
+        private static void BuyItem(string id)
+        {
+            Inventory.Get().Add(id, 1f, Color.black, true, true);
+            var price = (int)Mathf.Floor(Singleton<GameInventory>.Instance.GetItemProperty(id).Price * Singleton<UpgradeSystem>.Instance.GetUpgradeValue("shop_discount"));
+            GlobalData.AddPlayerMoney(-price);
+            Main.ModEntry.Logger.Log($"QuickShop: bought id: {id} for {price}.");
+            UIManager.Get().ShowPopup("QuickShop:", "Part cost: " + Helper.MoneyToString((float) price), PopupType.Buy);
         }
     }
 }
