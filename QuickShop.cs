@@ -39,13 +39,10 @@ namespace QuickShop
         {
             if (Input.GetKeyUp(KeyCode.B))
             {
-                string id;
-                GameScript.Get().GetSelectedPartToMount();
-                id = GameScript.Get().GetPartMouseOver().GetIDWithTuned();
+                string id = GameScript.Get().GetPartMouseOver().GetIDWithTuned();
                 if (id != null)
                 {
                     Inventory.Get().Add(id, 1f, Color.black, true, true);
-                    new NewInventoryItem(id, true).Condition = 1f;
                     int price = Singleton<GameInventory>.Instance.GetItemProperty(id).Price;
                     GlobalData.AddPlayerMoney(-price);
                     UIManager.Get().ShowPopup("QiuckShop:", "Part cost: " + Helper.MoneyToString((float)price), PopupType.Buy);
